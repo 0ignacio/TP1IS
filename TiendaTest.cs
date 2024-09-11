@@ -4,22 +4,24 @@ using System.Reflection;
 using Clases;
 using Xunit;
 using Moq;
-public class TiendaTest
+public class TiendaTest : IClassFixture<TiendaFixture>
 {
+    private readonly TiendaFixture _fixture;
+
+    public TiendaTest(TiendaFixture tiendaFix)
+    {
+        _fixture = tiendaFix;
+    }
+
     [Fact]
     public void AgregarProducto_AgregadoCorrectamente()
     {
-        string nombre = "Manzana";
-        double precio = 500;
-        string categoria = "Fruta";
-        Producto producto = new Producto(nombre, precio, categoria);
-
-        Tienda tienda = new Tienda();
-        tienda.agregar_producto(producto);
+        Producto producto = new Producto("Mayonesa", 1000, "Aderesos"); 
+        _fixture.TiendaFix.agregar_producto(producto);
 
         /*Controla que el producto este contenido en el inventario de la tienda para comprobar que 
         que se añadio correctamente*/
-        Assert.Contains(producto,tienda.listar_productos());
+        Assert.Contains(producto,_fixture.TiendaFix.listar_productos());
     }
 
     // [Fact]
@@ -33,20 +35,12 @@ public class TiendaTest
     [Fact]
     public void BuscarProducto_EncuentraProductoCorrecto()
     {
-        string nombre = "Manzana";
-        double precio = 500;
-        string categoria = "Fruta";
-        Producto producto = new Producto(nombre, precio, categoria);
-
-        Tienda tienda = new Tienda();
-        tienda.agregar_producto(producto);
-
-        var productoEncontrado = tienda.buscar_producto(nombre);
+        var productoEncontrado = _fixture.TiendaFix.buscar_producto("Mayonesa");
         
         Assert.NotNull(productoEncontrado);
-        Assert.Equal(producto.Nombre, productoEncontrado.Nombre);
-        Assert.Equal(producto.Precio, productoEncontrado.Precio);
-        Assert.Equal(producto.Categoria, productoEncontrado.Categoria);
+        Assert.Equal("Mayonesa", productoEncontrado.Nombre);
+        Assert.Equal(1000, productoEncontrado.Precio);
+        Assert.Equal("Aderesos", productoEncontrado.Categoria);
     }
 
     // [Fact]
