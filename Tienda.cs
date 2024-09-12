@@ -31,11 +31,25 @@ public class Tienda{
     }
 
     public void aplicar_descuento(string nombre, int descuento){
-        Producto producto = buscar_producto(nombre);
+        Producto productoEncontrado = buscar_producto(nombre);
         if(descuento < 0 || descuento > 100){
             throw new Exception("Porcentaje fuera de rango");
         }
-        double nuevoPrecio = producto.Precio * (1 - descuento/100);
-        producto.actualizar_precio(nuevoPrecio);
+        double nuevoPrecio = productoEncontrado.Precio * (1 - descuento / 100.0);
+        productoEncontrado.actualizar_precio(nuevoPrecio);
+    }
+
+    public double calcular_total_carrito(List<string> productos)
+    {
+        double total = 0;
+        foreach (var nombre in productos)
+        {
+            var producto = buscar_producto(nombre);
+            if(producto != null)
+            {
+                total += producto.Precio;
+            }
+        }
+        return total;
     }
 }

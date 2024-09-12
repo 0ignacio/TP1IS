@@ -6,7 +6,7 @@ using Xunit;
 using Moq;
 public class TiendaTest : IClassFixture<TiendaFixture>
 {
-    private readonly TiendaFixture _fixture;
+    private TiendaFixture _fixture;
 
     public TiendaTest(TiendaFixture tiendaFix)
     {
@@ -35,12 +35,12 @@ public class TiendaTest : IClassFixture<TiendaFixture>
     [Fact]
     public void BuscarProducto_EncuentraProductoCorrecto()
     {
-        var productoEncontrado = _fixture.TiendaFix.buscar_producto("Mayonesa");
+        var productoEncontrado = _fixture.TiendaFix.buscar_producto("Costilla");
         
         Assert.NotNull(productoEncontrado);
-        Assert.Equal("Mayonesa", productoEncontrado.Nombre);
+        Assert.Equal("Costilla", productoEncontrado.Nombre);
         Assert.Equal(1000, productoEncontrado.Precio);
-        Assert.Equal("Aderesos", productoEncontrado.Categoria);
+        Assert.Equal("Carne", productoEncontrado.Categoria);
     }
 
     // [Fact]
