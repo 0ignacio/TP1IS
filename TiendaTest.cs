@@ -46,88 +46,88 @@ public class TiendaTest : IClassFixture<TiendaFixture>
     // [Fact]
     // public void BuscarProducto_NoEncuentraProducto()
     // {
-    //     string nombre = "Manzana";
-    //     double precio = 500;
-    //     string categoria = "Fruta";
-    //     Producto producto = new Producto(nombre, precio, categoria);
-
-    //     Tienda tienda = new Tienda();
-    //     tienda.agregar_producto(producto);
-
-    //     string nombreBuscar = "Pera";
-
-    //     var productoEncontrado = tienda.buscar_producto(nombreBuscar);
+    //     var productoEncontrado = _fixture.TiendaFix.buscar_producto("Pera");
         
     //     Assert.Null(productoEncontrado);
-    
     // }
 
     [Fact]
     public void BuscarProducto_NoEncuentraProductoException()
     {
-        string nombre = "Manzana";
-        double precio = 500;
-        string categoria = "Fruta";
-        Producto producto = new Producto(nombre, precio, categoria);
-
-        Tienda tienda = new Tienda();
-        tienda.agregar_producto(producto);
-
         string nombreBuscar = "Pera";
 
-        var excepcion = Assert.Throws<Exception>(() => tienda.buscar_producto(nombreBuscar));
+        var excepcion = Assert.Throws<Exception>(() => _fixture.TiendaFix.buscar_producto(nombreBuscar));
         Assert.Equal("No se encontró un producto con el nombre especificado", excepcion.Message);
     }
     
     [Fact]
     public void EliminarProducto_EliminaProductoCorrecto()
     {
-        string nombre = "Manzana";
-        double precio = 500;
-        string categoria = "Fruta";
-        Producto producto = new Producto(nombre, precio, categoria);
-
-        Tienda tienda = new Tienda();
-        tienda.agregar_producto(producto);
-
-        var eliminado = tienda.eliminar_producto(nombre);
-        //var productoEncontrado = tienda.buscar_producto(nombre);
+        Producto producto = _fixture.TiendaFix.buscar_producto("Costilla");
+        var eliminado = _fixture.TiendaFix.eliminar_producto("Costilla");
         
         Assert.True(eliminado);
-        Assert.DoesNotContain(producto, tienda.listar_productos());
-        //Assert.Null(productoEncontrado);
+        Assert.DoesNotContain(producto, _fixture.TiendaFix.listar_productos());
     }
 
     [Fact]
     public void EliminarProducto_ProductoNoEncontradoException()
     {
-        string nombre = "Manzana";
-        double precio = 500;
-        string categoria = "Fruta";
-        Producto producto = new Producto(nombre, precio, categoria);
-
-        Tienda tienda = new Tienda();
-        tienda.agregar_producto(producto);
-
-        string nombreBuscar = "Pera";
-        var excepcion = Assert.Throws<Exception>(() => tienda.eliminar_producto(nombreBuscar));
+        var excepcion = Assert.Throws<Exception>(() => _fixture.TiendaFix.eliminar_producto("Pera"));
         Assert.Equal("No se encontró un producto con el nombre especificado que quiere ser eliminado", excepcion.Message);
     }
 
     [Fact]
     public void AplicarDescuento_ActualizarPrecioCorrectamente()
     {
-        string nombre = "Manzana";
-        double precio = 1000;
-        string categoria = "Fruta";
-        var tienda = new Tienda();
         //Creacion del mock de producto
-        var mockProducto = new Mock<Producto>(nombre, precio, categoria);
+        var mockProducto = new Mock<Producto>("Manzana", 1000, "Fruta");
         mockProducto.SetupGet(p => p.Precio).Returns(1000); // Precio inicial del producto
-        tienda.agregar_producto(mockProducto.Object);
-        int porcentaje = 50;
-        tienda.aplicar_descuento(nombre, porcentaje);
+        _fixture.TiendaFix.agregar_producto(mockProducto.Object);
+    
+        _fixture.TiendaFix.aplicar_descuento("Manzana", 50); //parametros nombre y descuento
         //Se verifica que el metodo actualizar_precio funciono correctamente una sola vez
         mockProducto.Verify(p => p.actualizar_precio(500), Times.Once);
+    }
+
+    [Fact]
+    public void CalcularCarrito_FlujoCompleto()
+    {
+        List<String> carrito = new List<String>();
+        //Funcionalidad: agregar producto
+        _fixture.TiendaFix.agregar_producto(new Producto("Mayonesa", 1000, "Aderesos"));
+        _fixture.TiendaFix.agregar_producto(new Producto("Mostaza", 1000, "Aderesos"));
+        _fixture.TiendaFix.agregar_producto(new Producto("Salsa picante", 1000, "Aderesos"));
+        //Funcionalidad: eliminar producto
+        _fixture.TiendaFix.eliminar_producto("Mayonesa");
+        //Funcionalidad: aplicar descuento
+        _fixture.TiendaFix.aplicar_descuento("Mostaza", 50);
+        //Se añaden los productos al carrito
+        carrito.Add(_fixture.TiendaFix.buscar_producto("Mostaza").Nombre);
+        carrito.Add(_fixture.TiendaFix.buscar_producto("Nalga").Nombre);
+        carrito.Add(_fixture.TiendaFix.buscar_producto("Crema de manos").Nombre);
+        //Calculo del total del carrito
+        double totalCarrito = _fixture.TiendaFix.calcular_total_carrito(carrito);
+        //Total esperado
+        double totalEsperado = 500 + 1000 + 1000; //Primer precio mostaza con 50% desc, Nalga 1000 y Crema de manos 1000
+        //Assert
+        Assert.Equal(totalCarrito, totalEsperado);
+    }
+
+    [Fact]
+    public void CalcularCarrito_FlujoCompleto_CarritoVacio()
+    {
+        List<String> carrito = new List<String>();
+        //Funcionalidad: agregar producto
+        _fixture.TiendaFix.agregar_producto(new Producto("Mayonesa", 1000, "Aderesos"));
+        _fixture.TiendaFix.agregar_producto(new Producto("Mostaza", 1000, "Aderesos"));
+        _fixture.TiendaFix.agregar_producto(new Producto("Salsa picante", 1000, "Aderesos"));
+        //Funcionalidad: eliminar producto
+        _fixture.TiendaFix.eliminar_producto("Mayonesa");
+        //Funcionalidad: aplicar descuento
+        _fixture.TiendaFix.aplicar_descuento("Salsa picante", 50);
+        
+        var excepcion = Assert.Throws<Exception>(() => _fixture.TiendaFix.calcular_total_carrito(carrito));
+        Assert.Equal("El carrito esta vacio", excepcion.Message);
     }
 }

@@ -41,15 +41,19 @@ public class Tienda{
 
     public double calcular_total_carrito(List<string> productos)
     {
-        double total = 0;
-        foreach (var nombre in productos)
+        if (productos != null && productos.Count != 0)
         {
-            var producto = buscar_producto(nombre);
-            if(producto != null)
+            double total = 0;
+            foreach (var nombre in productos)
             {
-                total += producto.Precio;
+                var producto = buscar_producto(nombre);
+                if(producto != null)
+                {
+                    total += producto.Precio;
+                }
             }
+            return total;
         }
-        return total;
+        throw new Exception("El carrito esta vacio");
     }
 }
